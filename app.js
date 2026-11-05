@@ -478,15 +478,30 @@ function swToBatch(c) {
   };
 }
 
+async function fetchLocalBatches() {
+  try {
+    const r = await fetch("local-batches.json");
+    const list = r.ok ? await r.json() : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
 async function fetchSwBatches() {
-  const response = await fetch(`${SW_API}/api/courses/`);
-  if (!response.ok) throw new Error("Selection Way API error " + response.status);
-  const json = await response.json();
-  if (json.state !== 200) throw new Error(json.message || "Selection Way API error");
-  return (json.data || [])
-    .sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999))
-    .filter((c) => c && c.id != null)
-    .map(swToBatch);
+  const local = await fetchLocalBatches();
+  let live = [];
+  try {
+    const response = await fetch(`${SW_API}/api/courses/`);
+    if (!response.ok) throw new Error("Selection Way API error " + response.status);
+    const json = await response.json();
+    if (json.state !== 200) throw new Error(json.message || "Selection Way API error");
+    live = (json.data || [])
+      .sort((a, b) => (a.priority ?? 999) - (b.priority ?? 999))
+      .filter((c) => c && c.id != null)
+      .map(swToBatch);
+  } catch (e) {
+    if (!local.length) throw e;
+  }
+  return local.concat(live);
 }
 
 const BATCH_CACHE_KEY = "cx-batches-cache-v1";

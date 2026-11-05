@@ -1,5 +1,5 @@
-const CACHE_NAME = "codex-studys-shell-v21";
-const SHELL_FILES = ["./index.html", "./batch.html", "./app.js", "./profile.js", "./ebooks.js", "./manifest.json", "./assets/selectionway-icon-192.png", "./assets/selectionway-icon-512.png", "./assets/icon-192.png"];
+const CACHE_NAME = "codex-studys-shell-v22";
+const SHELL_FILES = ["./index.html", "./batch.html", "./app.js", "./profile.js", "./ebooks.js", "./manifest.json", "./local-batches.json", "./assets/selectionway-icon-192.png", "./assets/selectionway-icon-512.png", "./assets/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
