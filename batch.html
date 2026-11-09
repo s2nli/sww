@@ -451,7 +451,11 @@ function renderNotes(i) {
 document.querySelectorAll(".tab").forEach((tab) => tab.addEventListener("click", () => { if (tab.dataset.tab !== st.tab) go(tab.dataset.tab); }));
 
 /* ---------- Open / download (same behaviour as the Selection Way site) ---------- */
-function openLink(url) { if (url) window.open(url, "_blank", "noopener,noreferrer"); }
+function openLink(url, title) {
+  if (!url) return;
+  if (/\.m3u8(\?|$)/i.test(url)) { url = "player.html?url=" + encodeURIComponent(url) + (title ? "&title=" + encodeURIComponent(title) : ""); }
+  window.open(url, "_blank", "noopener,noreferrer");
+}
 
 async function downloadFile(url, name) {
   const safe = (String(name || "notes").replace(/[\\/:*?"<>|]+/g, " ").trim() || "notes") + ".pdf";
@@ -476,7 +480,7 @@ document.addEventListener("click", (e) => {
   const o = e.target.closest("[data-open]");
   if (o) {
     if (o.dataset.track) { const [ti, ci] = o.dataset.track.split(".").map(Number); trackLecture(ti, ci); }
-    openLink(o.dataset.open); return;
+    openLink(o.dataset.open, (o.closest(".class-card") && o.closest(".class-card").querySelector(".row-title") || {}).textContent); return;
   }
   const d = e.target.closest("[data-dl]"); if (d) { downloadFile(d.dataset.dl, d.dataset.name); }
 });

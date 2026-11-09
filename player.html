@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b0b12">
+<title>Player — CODEX STUDYS</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin:0; height:100%; background:#000; color:#fff; font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .bar { display:flex; align-items:center; gap:10px; padding:10px 12px; padding-top:calc(10px + env(safe-area-inset-top, 0px)); background:#0b0b12; }
+  .bar button { border:1px solid #2a2a3a; background:#171724; color:#fff; border-radius:10px; padding:8px 12px; font-weight:600; cursor:pointer; }
+  .bar span { font-size:14px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wrap { height:calc(100% - 58px - env(safe-area-inset-top, 0px)); display:flex; align-items:center; justify-content:center; }
+  video { width:100%; max-height:100%; background:#000; }
+  .msg { padding:24px; text-align:center; color:#cbd; line-height:1.5; }
+  .msg a { color:#9487ff; }
+</style>
+</head>
+<body>
+<div class="bar"><button id="back" type="button">← Back</button><span id="ttl">Video</span></div>
+<div class="wrap" id="wrap"><video id="v" controls autoplay playsinline></video></div>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var url = q.get("url"), title = q.get("title");
+  var v = document.getElementById("v"), wrap = document.getElementById("wrap");
+  if (title) { document.getElementById("ttl").textContent = title; document.title = title + " — CODEX STUDYS"; }
+  document.getElementById("back").addEventListener("click", function () { if (history.length > 1) history.back(); else location.href = "index.html"; });
+  function fail(why) {
+    wrap.innerHTML = '<div class="msg">Could not play this video' + (why ? " (" + why + ")" : "") + '.<br>' +
+      (url ? '<a href="' + url.replace(/"/g, "&quot;") + '" target="_blank" rel="noopener noreferrer">Open the link directly</a>' : "") + '</div>';
+  }
+  if (!url) return fail("no video link");
+  if (window.Hls && Hls.isSupported() && /\.m3u8/i.test(url)) {
+    var hls = new Hls();
+    hls.on(Hls.Events.ERROR, function (e, d) { if (d && d.fatal) fail(d.details || "stream error"); });
+    hls.loadSource(url); hls.attachMedia(v);
+  } else if (v.canPlayType("application/vnd.apple.mpegurl") || !/\.m3u8/i.test(url)) {
+    v.src = url; v.addEventListener("error", function () { fail("unsupported or blocked"); });
+  } else { fail("browser can't play HLS"); }
+})();
+</script>
+</body>
+</html>
